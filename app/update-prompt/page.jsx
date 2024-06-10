@@ -1,9 +1,8 @@
 
 "use client";
 
-import { useState,useEffect } from "react";
-import React, { Suspense } from 'react';
 
+import { useState, useEffect, Suspense } from "react";
 
 import { useRouter,useSearchParams } from "next/navigation";
 
@@ -74,10 +73,15 @@ if (promptId) getPromptDetails()
 
 
 
-const UpdatePromptPageWithSuspense = () => (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EditPrompt/>
-    </Suspense>
-  );
+export default function UpdatePromptPageWithSuspense ()  {
+
+    return(
+        <Suspense fallback={<div>Loading...</div>}>
+        <EditPrompt/>
+      </Suspense>
+    )
+   
+
+}
   
-  export default UpdatePromptPageWithSuspense;
+ 

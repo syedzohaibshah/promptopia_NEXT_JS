@@ -33,10 +33,13 @@ const UserProfile = ({ params }) => {
 
 
 
-const ProfileWithSuspense = () => (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UserProfile/>
-    </Suspense>
-  );
+export default function ProfileWithSuspense (){
+
+    return( 
+         <Suspense fallback={<div>Loading...</div>}>
+    <UserProfile/>
+  </Suspense>
+  )
+} 
   
-  export default ProfileWithSuspense;
+ 
