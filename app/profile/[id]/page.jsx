@@ -1,6 +1,5 @@
 "use client";
-import React, { Suspense } from 'react';
-import { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from "next/navigation";
 
 import Profile from "@components/Profile";
@@ -13,14 +12,20 @@ const UserProfile = ({ params }) => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const response = await fetch(`/api/users/${params?.id}/posts`);
-      const data = await response.json();
+      if (!params?.id) return;
 
-      setUserPosts(data);
+      try {
+        const response = await fetch(`/api/users/${params.id}/posts`);
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        setUserPosts(data);
+      } catch (error) {
+        console.error('Error fetching user posts:', error);
+      }
     };
 
-    if (params?.id) fetchPosts();
-  }, [params?.id]);
+    fetchPosts();
+  }, [params]);
 
   return (
     <Profile
@@ -31,15 +36,10 @@ const UserProfile = ({ params }) => {
   );
 };
 
-
-
-export default function ProfileWithSuspense (){
-
-    return( 
-         <Suspense fallback={<div>Loading...</div>}>
-    <UserProfile/>
-  </Suspense>
-  )
-} 
-  
- 
+export default function ProfileWithSuspense({ params }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UserProfile params={params} />
+    </Suspense>
+  );
+}
