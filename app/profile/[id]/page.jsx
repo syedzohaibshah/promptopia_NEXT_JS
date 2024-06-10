@@ -1,5 +1,5 @@
 "use client";
-
+import React, { Suspense } from 'react';
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -20,7 +20,7 @@ const UserProfile = ({ params }) => {
     };
 
     if (params?.id) fetchPosts();
-  }, [params.id]);
+  }, [params?.id]);
 
   return (
     <Profile
@@ -31,4 +31,12 @@ const UserProfile = ({ params }) => {
   );
 };
 
-export default UserProfile;
+
+
+const ProfileWithSuspense = () => (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UserProfile/>
+    </Suspense>
+  );
+  
+  export default ProfileWithSuspense;
