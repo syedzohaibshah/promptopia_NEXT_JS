@@ -1,28 +1,22 @@
 "use client";
 
-// components/Nav.jsx
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
-import { set } from 'mongoose';
 
 const Nav = () => {
-    // const isUserLoggedIn=true;
+    const { data: session } = useSession();
+    const [providers, setProviders] = useState(null);
+    const [toggleDropdown, setToggleDropdown] = useState(false);
 
-    const{data : session}=useSession();
-    const[providers,setProviders]=useState(null);
-
-    const [toggleDropdown,settoggleDropDown]=useState(false);
-    useEffect(()=>{
-        const setUpProviders=async()=>{
+    useEffect(() => {
+        const setupProviders = async () => {
             const response = await getProviders();
             setProviders(response);
         }
-        setUpProviders();
-         
-    })
-    
+        setupProviders();
+    }, []); // Empty dependency array 
   return (
     <nav className='flex-between w-full mb-16 pt-3'>
   <Link href ="/" className='flex gap-2 flex-center'>
@@ -30,8 +24,8 @@ const Nav = () => {
 width={30}
 height={30}
 className='object-contain'
-alt="Promotopie logo" /> 
-<p className='logo_text'>Promotpeia</p>
+alt="Promptify logo" /> 
+<p className='logo_text'>Promptify</p>
   </Link>
 
   {/* Desktop Navigation */}
@@ -40,6 +34,8 @@ alt="Promotopie logo" />
         <div className='flex gap-3 md:gap-5'>
         <Link href ="/create-prompt"
         className='black_btn'>Create Post</Link>
+          <Link href ="/chatbot"
+        className='black_btn'>Test Here</Link>
         <button type='button' onClick={signOut} className="outline_btn">
             Sign Out
         </button>
@@ -63,6 +59,7 @@ alt="Promotopie logo" />
         Sign In
 
     </button>
+
     ))}
 
     </>)}
@@ -80,23 +77,25 @@ alt="Promotopie logo" />
         height={37}
         className="rounded-full"
         alt="profile"
-        onClick={()=> settoggleDropDown((prev)=> !prev)}
+        onClick={()=> setToggleDropdown((prev)=> !prev)}
         />
         {toggleDropdown&&(
             <div className='dropdown'>
             <Link href="/profile"
             className='dropdown_link'
-            onClick={()=>settoggleDropDown(false)}>
+            onClick={()=>setToggleDropdown(false)}>
             My Profile
             </Link>
             <Link href="/create-prompt"
             className='dropdown_link'
-            onClick={()=>settoggleDropDown(false)}>
+            onClick={()=>setToggleDropdown(false)}>
             Create Prompt
             </Link>
+            <Link href ="/chatbot"
+        className='dropdown_link'>Test Here</Link>
             <button type="button"
             onClick={()=>{
-                settoggleDropDown(false);
+                setToggleDropdown(false);
                 signOut();
             }}
             className='mt-5 w-full black_btn'>

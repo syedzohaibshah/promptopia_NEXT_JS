@@ -1,10 +1,11 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { connectToDB } from '@utils/database';  
-
-const databaseName = 'test'; // Replace 'test' with the name of the database you want to access
-
+import { connectToDB } from '@utils/database';
 import User from '@model/user';
+
+const databaseName = 'test';
+
+let isConnected = false;
 
 const handler = NextAuth({
   providers: [
@@ -14,40 +15,39 @@ const handler = NextAuth({
     })
   ],
   callbacks: {
-    async session({ session }) {
-      await connectToDB(databaseName);//onnection is established
+    async session({ session, token }) {
+      if (!isConnected) {
+        await connectToDB(databaseName);
+        isConnected = true;
+      }
 
-      const sessionUser = await User.findOne({
-        email: session.user.email
-      });
-
-      if (sessionUser) {
-        session.user.id = sessionUser._id.toString();
+      if (token.sub) {
+        session.user.id = token.sub;
       }
 
       return session;
     },
-    async signIn({ profile }) {
-      try {
-        await connectToDB(databaseName);
-        
-        const userExists = await User.findOne({
-          email: profile.email
-        });
-
-        if (!userExists) {
-          await User.create({
-            email: profile.email,
-            username: profile.name.replace(/ /g, "").toLowerCase(),
-            image: profile.picture
-          });
+    async jwt({ token, user, account }) {
+      if (account && user) {
+        if (!isConnected) {
+          await connectToDB(databaseName);
+          isConnected = true;
         }
 
-        return true;
-      } catch (error) {
-        console.log(error);
-        return false;
+        const dbUser = await User.findOne({ email: user.email });
+
+        if (!dbUser) {
+          const newUser = await User.create({
+            email: user.email,
+            username: user.name.replace(/ /g, "").toLowerCase(),
+            image: user.image
+          });
+          token.sub = newUser._id.toString();
+        } else {
+          token.sub = dbUser._id.toString();
+        }
       }
+      return token;
     }
   }
 });
